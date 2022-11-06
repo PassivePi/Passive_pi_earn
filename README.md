@@ -6,11 +6,11 @@ The container automatically generates the required docker-compose file based on 
 
 Currently, the supported 'passive' income apps are:
 
-1. Honeygain
-2. Peer2profit
-3. IPRoyal
-4. PacketStream
-5. Earnapp
+1. [Sign up for Honeygain](https://r.honeygain.me/DUSTI89370) 
+2. [Sign up for Peer2profit](https://p2pr.me/165867160762dd51f72ac67)
+3. [Sign up for IPRoyal](https://pawns.app?r=824521)
+4. [Sign up for Packetstream](https://packetstream.io/?psr=43GK)
+5. [Sign up for Earnapp](https://earnapp.com/i/9kRMMCAh)
 
 ## Prerequisites
 It is asssumed that this will run on a Rasperry Pi that has docker installed along with docker-compose.

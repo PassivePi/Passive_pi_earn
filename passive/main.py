@@ -1,11 +1,13 @@
 """Automatically generate passive income apps docker-compose file."""
+import sys
 import uuid
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List
 from pathlib import Path
+from typing import List
 
 import yaml
+from helpers import get_class_arguments
 from pydantic import BaseModel
 
 
@@ -141,9 +143,10 @@ class InstallService:
 
     class Providers(Enum):
         """Available providers that can be incorporated."""
+
         HONEYGAIN = "Honeygain"
         PEER2PROFIT = "Peer2Profit"
-        IPROYAL = "IProyal"
+        IPROYAL = "Iproyal"
         PACKETSTREAM = "Packetstream"
         EARNAPP = "Earnapp"
 
@@ -162,7 +165,10 @@ class InstallService:
                     install_provider = input(
                         f"Would you like to install {provider}?. Answer 'y' or 'n'.\n"
                     )
-                    if install_provider.lower() in NEGATIVE_RESPONSE+AFFIRMATIVE_RESPONSE:
+                    if (
+                        install_provider.lower()
+                        in NEGATIVE_RESPONSE + AFFIRMATIVE_RESPONSE
+                    ):
                         if install_provider.lower() in NEGATIVE_RESPONSE:
                             install_list.remove(provider)
                         break
@@ -175,31 +181,11 @@ class InstallService:
         install_list = self._request_provider_installs()
 
         for provider in install_list:
-            if provider == self.Providers.HONEYGAIN.value:
-                email = input(f"Please provide {provider} email.\n")
-                password = input(f"Please provide {provider} password.\n")
-                self.initialized_services.append(
-                    Honeygain(email=email, password=password)
-                )
-
-            if provider == self.Providers.PEER2PROFIT.value:
-                email = input(f"Please provide {provider} email.\n")
-                self.initialized_services.append(Peer2Profit(email=email))
-
-            if provider == self.Providers.IPROYAL.value:
-                email = input(f"Please provide {provider} email.\n")
-                password = input(f"Please provide {provider} password.\n")
-                self.initialized_services.append(
-                    Iproyal(email=email, password=password)
-                )
-
-            if provider == self.Providers.PACKETSTREAM.value:
-                CID = input(f"Please provide {provider} CID.\n")
-                self.initialized_services.append(Packetstream(CID=CID))
-
-            if provider == self.Providers.EARNAPP.value:
-                UUID = input(f"Please provide {provider} UUID.\n")
-                self.initialized_services.append(Earnapp(UUID=UUID))
+            class_reference = getattr(sys.modules[__name__], provider)
+            class_arguments = {k: None for k in get_class_arguments(class_reference)}
+            for k, _ in class_arguments.items():
+                class_arguments[k] = input(f"Please provide {provider} {k}.\n")
+            self.initialized_services.append(class_reference(**class_arguments))
 
     def prepare_docker_compose(self) -> dict:
         """Create the complete dict that will transform into the YAML."""
@@ -218,7 +204,9 @@ class InstallService:
 if __name__ == "__main__":
     install_service = InstallService()
 
-    with open(Path(__file__).parent.parent / "output" / "docker-compose.yml", "w") as outfile:
+    with open(
+        Path(__file__).parent.parent / "output" / "docker-compose.yml", "w"
+    ) as outfile:
         yaml.dump(
             install_service.prepare_docker_compose(),
             outfile,
